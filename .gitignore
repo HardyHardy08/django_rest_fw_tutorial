@@ -1,2 +1,6 @@
 django_rest_fw_tutorial.sublime-workspace
-
+db.sqlite3
+snippets/__pycache__/
+snippets/migrations/
+snippets/migrations/__pycache__/
+tutorial/__pycache__/
