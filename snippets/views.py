@@ -17,4 +17,4 @@ class SnippetDetail(generics.RetrieveUpdateDestroyAPIView):
     Retrieve, update, or delete a snippet instance.
     """
     queryset = Snippet.objects.all()
-    serializer = SnippetSerializer
+    serializer_class = SnippetSerializer
