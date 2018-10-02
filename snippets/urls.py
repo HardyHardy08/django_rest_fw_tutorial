@@ -9,6 +9,12 @@ urlpatterns = [
         views.SnippetDetail.as_view(),
         name="snippets_get_put_delete"
     ),
+    url(r'^users/$', views.UserList.as_view(), name="users_get_list"),
+    url(
+        r'^users/(?P<pk>[0-9]+)/$',
+        views.UserDetail.as_view(),
+        name="snippets_get_detail"
+    ),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
