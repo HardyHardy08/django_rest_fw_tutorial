@@ -45,20 +45,19 @@ class SnippetListTests(TestCase):
         response = create_snippet(self.client.post, title="", code="")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_new_snippet_success_from_authorized_users(self):
-        authorized_user = User.objects.get(pk=self.auth_user)  # need to change if unauth
-        valid_snippet = Snippet.objects.create({
-            "owner": authorized_user
-        })
-        self.assertEqual(valid_snippet, authorized_user)
+    # def test_new_snippet_success_from_authorized_users(self):
+    #     authorized_user = User.objects.get(pk=self.auth_user)  # need to change if unauth
+    #     valid_snippet = Snippet.objects.create({
+    #         "owner": authorized_user
+    #     })
+    #     self.assertEqual(valid_snippet, authorized_user)
 
-    def test_new_snippet_fail_from_unauthorized_users(self):
-        unauthorized_user = User.objects.create()
-        invalid_snippet = Snippet.objects.create({
-            "owner": unauthorized_user
-        })
-        self.assertEqual(invalid_snippet, False)
-
+    # def test_new_snippet_fail_from_unauthorized_users(self):
+    #     unauthorized_user = User.objects.create()
+    #     invalid_snippet = Snippet.objects.create({
+    #         "owner": unauthorized_user
+    #     })
+    #     self.assertEqual(invalid_snippet, False)
 
 
 class SnippetDetailTests(TestCase):
