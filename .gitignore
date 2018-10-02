@@ -3,4 +3,5 @@ db.sqlite3
 snippets/__pycache__/
 snippets/migrations/
 snippets/migrations/__pycache__/
+snippets/tests/__pycache__/
 tutorial/__pycache__/
