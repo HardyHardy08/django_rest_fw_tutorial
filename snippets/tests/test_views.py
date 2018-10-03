@@ -5,7 +5,7 @@
 
 import json
 from rest_framework import status
-from rest_framework.test import APITestCase
+from rest_framework.test import APITestCase, APIRequestFactory
 # from django.test import TestCase
 from snippets.models import Snippet
 from snippets.serializers import SnippetSerializer
@@ -61,9 +61,15 @@ class SnippetListTests(APITestCase):
             title="snippet two",
             code="print('World')",
             owner=self.authorized_user)
-        response = self.client.get(reverse('snippets_get_post'))
-        serializer = SnippetSerializer(Snippet.objects.all(), many=True)
-        self.assertEqual(response.data, serializer.data)
+        response = self.client.get(reverse('snippet-list'))
+        request = APIRequestFactory().get(reverse('snippet-list'))
+        serializer = SnippetSerializer(
+            Snippet.objects.all(),
+            many=True,
+            context={'request': request}
+        )
+        # need to get content from 'results' key because of pagination
+        self.assertEqual(response.data['results'], serializer.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     # post tests
@@ -71,7 +77,7 @@ class SnippetListTests(APITestCase):
         self.client.login(username=self.authorized_user_username,
                           password=self.authorized_user_password)
         response = self.client.post(
-            reverse('snippets_get_post'),
+            reverse('snippet-list'),
             data=json.dumps(self.valid_snippet),
             content_type='application/json'
         )
@@ -82,7 +88,7 @@ class SnippetListTests(APITestCase):
         self.client.login(username=self.authorized_user_username,
                           password=self.authorized_user_password)
         response = self.client.post(
-            reverse('snippets_get_post'),
+            reverse('snippet-list'),
             data=json.dumps(self.invalid_snippet),
             content_type='application/json'
         )
@@ -93,7 +99,7 @@ class SnippetListTests(APITestCase):
         self.client.login(username=self.authorized_user_username,
                           password=self.authorized_user_password)
         response = self.client.post(
-            reverse('snippets_get_post'),
+            reverse('snippet-list'),
             data=json.dumps(self.valid_snippet),
             content_type='application/json'
         )
@@ -104,7 +110,7 @@ class SnippetListTests(APITestCase):
     # do not know how to make unauthorized user ... simply users that are not logged in?
     def test_new_snippet_fail_from_unauthorized_user(self):
         response = self.client.post(
-            reverse('snippets_get_post'),
+            reverse('snippet-list'),
             data=json.dumps(self.valid_snippet),
             content_type='application/json'
         )
@@ -159,16 +165,23 @@ class SnippetDetailTests(APITestCase):
 
     def test_get_valid_snippet(self):
         response = self.client.get(
-            reverse('snippets_get_put_delete',
+            reverse('snippet-detail',
                     kwargs={'pk': self.authorized_user_snippet.pk})
         )
-        serializer = SnippetSerializer(self.authorized_user_snippet)
+        request = APIRequestFactory().get(
+            reverse('snippet-detail',
+                    kwargs={'pk': self.authorized_user_snippet.pk})
+        )
+        serializer = SnippetSerializer(
+            Snippet.objects.get(pk=self.authorized_user_snippet.pk),
+            context={'request': request}
+        )
         self.assertEqual(json.loads(response.content), serializer.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_invalid_snippet(self):
         response = self.client.get(
-            reverse('snippets_get_put_delete', kwargs={'pk': 30})
+            reverse('snippet-detail', kwargs={'pk': 30})
         )
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
@@ -177,7 +190,7 @@ class SnippetDetailTests(APITestCase):
         self.client.login(username=self.authorized_user_username,
                           password=self.authorized_user_password)
         response = self.client.put(
-            reverse('snippets_get_put_delete', kwargs={'pk': self.authorized_user_snippet.pk}),
+            reverse('snippet-detail', kwargs={'pk': self.authorized_user_snippet.pk}),
             data={'code': "def change(): \n    return None"}
         )
         self.client.logout()
@@ -187,7 +200,7 @@ class SnippetDetailTests(APITestCase):
         self.client.login(username=self.authorized_user_username,
                           password=self.authorized_user_password)
         response = self.client.put(
-            reverse('snippets_get_put_delete', kwargs={'pk': self.authorized_user_snippet.pk}),
+            reverse('snippet-detail', kwargs={'pk': self.authorized_user_snippet.pk}),
             data=self.invalid_snippet
         )
         self.client.logout()
@@ -197,7 +210,7 @@ class SnippetDetailTests(APITestCase):
         self.client.login(username=self.authorized_user_username,
                           password=self.authorized_user_password)
         response = self.client.put(
-            reverse('snippets_get_put_delete', kwargs={'pk': self.authorized_user_snippet.pk}),
+            reverse('snippet-detail', kwargs={'pk': self.authorized_user_snippet.pk}),
             data=self.valid_snippet
         )
         self.client.logout()
@@ -207,7 +220,7 @@ class SnippetDetailTests(APITestCase):
         self.client.login(username=self.random_user_username,
                           password=self.random_user_password)
         response = self.client.put(
-            reverse('snippets_get_put_delete', kwargs={'pk': self.authorized_user_snippet.pk}),
+            reverse('snippet-detail', kwargs={'pk': self.authorized_user_snippet.pk}),
             data=self.valid_snippet
         )
         self.client.logout()
@@ -218,7 +231,7 @@ class SnippetDetailTests(APITestCase):
         self.client.login(username=self.authorized_user_username,
                           password=self.authorized_user_password)
         response = self.client.delete(
-            reverse('snippets_get_put_delete', kwargs={'pk': self.authorized_user_snippet.pk}),
+            reverse('snippet-detail', kwargs={'pk': self.authorized_user_snippet.pk}),
         )
         self.client.logout()
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
@@ -227,7 +240,7 @@ class SnippetDetailTests(APITestCase):
         self.client.login(username=self.authorized_user_username,
                           password=self.authorized_user_password)
         response = self.client.delete(
-            reverse('snippets_get_put_delete', kwargs={'pk': 30}),
+            reverse('snippet-detail', kwargs={'pk': 30}),
         )
         self.client.logout()
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
@@ -236,7 +249,7 @@ class SnippetDetailTests(APITestCase):
         self.client.login(username=self.authorized_user_username,
                           password=self.authorized_user_password)
         response = self.client.delete(
-            reverse('snippets_get_put_delete', kwargs={'pk': self.authorized_user_snippet.pk}),
+            reverse('snippet-detail', kwargs={'pk': self.authorized_user_snippet.pk}),
         )
         self.client.logout()
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
@@ -245,7 +258,7 @@ class SnippetDetailTests(APITestCase):
         self.client.login(username=self.random_user_username,
                           password=self.random_user_password)
         response = self.client.delete(
-            reverse('snippets_get_put_delete', kwargs={'pk': self.authorized_user_snippet.pk}),
+            reverse('snippet-detail', kwargs={'pk': self.authorized_user_snippet.pk}),
         )
         self.client.logout()
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
