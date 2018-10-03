@@ -37,7 +37,7 @@ SECRET_KEY = '&p=@=(3rq1t=yp8-upn)=t4v9gc09_7polra&pz0qwr+u6k9*^'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['snippetsapi.com']
 
 
 # Application definition
