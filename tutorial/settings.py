@@ -12,6 +12,18 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 
 import os
 
+from django.core.exceptions import ImproperlyConfigured
+
+
+# Utility funcs
+def get_env_variable(var_name):
+    try:
+        return os.environ[var_name]
+    except KeyError:
+        error_msg = "Set the environment variable" % var_name
+        raise ImproperlyConfigured(error_msg)
+
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -77,8 +89,12 @@ WSGI_APPLICATION = 'tutorial.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'snippets_drf',
+        'USER': 'snippets',
+        'PASSWORD': '123qwe123qwe',
+        'HOST': '127.0.0.1',
+        'PORT': '5432',
     }
 }
 
