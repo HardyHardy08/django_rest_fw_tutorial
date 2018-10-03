@@ -1,4 +1,4 @@
-from django.conf.urls import include, url
+from django.conf.urls import url
 from rest_framework.urlpatterns import format_suffix_patterns
 from snippets import views
 
@@ -15,9 +15,12 @@ urlpatterns = [
         views.UserDetail.as_view(),
         name="snippets_get_detail"
     ),
+    url(r'^$', views.api_root),
+    url(
+        r'^snippet/(?P<pk>[0-9]+)/highlight/$',
+        views.SnippetHighlight.as_view(),
+        name="snippet_highlight"
+    ),
 ]
 
-urlpatterns += [
-    url(r'^api-auth/', include('rest_framework.urls'))
-]
 urlpatterns = format_suffix_patterns(urlpatterns)
